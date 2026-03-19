@@ -43,7 +43,20 @@ const translations = {
   },
 } as const;
 
-export type Translations = (typeof translations)["en"];
+export type Translations = {
+  title: string;
+  addItem: string;
+  itemName: string;
+  amount: string;
+  category: string;
+  categories: Record<string, string>;
+  delete: string;
+  empty: string;
+  loading: string;
+  langSwitch: string;
+  bought: string;
+  uncategorized: string;
+};
 
 export function t(lang: Lang): Translations {
   return translations[lang];
