@@ -10,16 +10,25 @@ interface Props {
   lang: Lang;
   onToggle: (id: string, bought: boolean) => Promise<void>;
   onRemove: (id: string) => Promise<void>;
+  onEdit: (item: GroceryItem) => void;
 }
 
-export default function GroceryList({ items, t, lang, onToggle, onRemove }: Props) {
+export default function GroceryList({ items, t, lang, onToggle, onRemove, onEdit }: Props) {
   if (items.length === 0) {
     return (
       <div className="text-center text-gray-400 py-16 text-lg">{t.empty}</div>
     );
   }
 
-  const grouped = CATEGORIES.reduce(
+  // Build ordered category list: built-in categories first, then custom ones
+  const customCats = [...new Set(
+    items
+      .map((i) => i.category)
+      .filter((c) => !(CATEGORIES as readonly string[]).includes(c))
+  )];
+  const allCats = [...CATEGORIES, ...customCats];
+
+  const grouped = allCats.reduce(
     (acc, cat) => {
       const catItems = items.filter((item) => item.category === cat);
       if (catItems.length > 0) acc[cat] = catItems;
@@ -33,7 +42,7 @@ export default function GroceryList({ items, t, lang, onToggle, onRemove }: Prop
       {Object.entries(grouped).map(([cat, catItems]) => (
         <section key={cat}>
           <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-2 px-1">
-            {t.categories[cat] ?? t.uncategorized}
+            {t.categories[cat] ?? cat}
           </h2>
           <div className="flex flex-col gap-1.5">
             {catItems.map((item) => (
@@ -65,7 +74,10 @@ export default function GroceryList({ items, t, lang, onToggle, onRemove }: Prop
                     </svg>
                   )}
                 </button>
-                <div className="flex-1 min-w-0">
+                <button
+                  onClick={() => onEdit(item)}
+                  className="flex-1 min-w-0 text-start"
+                >
                   <span
                     className={`text-base ${item.bought ? "line-through text-gray-400" : "text-gray-800"}`}
                   >
@@ -74,7 +86,7 @@ export default function GroceryList({ items, t, lang, onToggle, onRemove }: Prop
                   {item.amount && (
                     <span className="text-sm text-gray-400 ms-2">{item.amount}</span>
                   )}
-                </div>
+                </button>
                 <button
                   onClick={() => onRemove(item.id)}
                   className="text-gray-300 hover:text-red-400 transition-colors p-1 flex-shrink-0"

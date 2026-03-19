@@ -47,9 +47,13 @@ export function useGroceryList() {
     await updateDoc(doc(db, COLLECTION, id), { bought: !bought });
   }
 
+  async function updateItem(id: string, name: string, amount: string | null, category: string) {
+    await updateDoc(doc(db, COLLECTION, id), { name, amount: amount || null, category });
+  }
+
   async function removeItem(id: string) {
     await deleteDoc(doc(db, COLLECTION, id));
   }
 
-  return { items, loading, addItem, toggleBought, removeItem };
+  return { items, loading, addItem, updateItem, toggleBought, removeItem };
 }

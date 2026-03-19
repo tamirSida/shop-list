@@ -20,6 +20,12 @@ const translations = {
     langSwitch: "EN",
     bought: "נקנה",
     uncategorized: "אחר",
+    edit: "ערוך",
+    save: "שמור",
+    cancel: "ביטול",
+    search: "חיפוש...",
+    allCategories: "הכל",
+    customCategory: "שם קטגוריה...",
   },
   en: {
     title: "Grocery List",
@@ -40,6 +46,12 @@ const translations = {
     langSwitch: "עב",
     bought: "Bought",
     uncategorized: "Other",
+    edit: "Edit",
+    save: "Save",
+    cancel: "Cancel",
+    search: "Search...",
+    allCategories: "All",
+    customCategory: "Category name...",
   },
 } as const;
 
@@ -56,6 +68,12 @@ export type Translations = {
   langSwitch: string;
   bought: string;
   uncategorized: string;
+  edit: string;
+  save: string;
+  cancel: string;
+  search: string;
+  allCategories: string;
+  customCategory: string;
 };
 
 export function t(lang: Lang): Translations {
