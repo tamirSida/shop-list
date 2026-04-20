@@ -1,90 +1,87 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { CATEGORIES } from "@/lib/types";
-import type { GroceryItem } from "@/lib/types";
+import { useState } from "react";
+import type { Buyer } from "@/lib/types";
 import type { Lang, Translations } from "@/lib/i18n";
+import BuyerSelect from "./BuyerSelect";
 
 interface Props {
   t: Translations;
   lang: Lang;
-  customCategories: string[];
-  onAdd: (name: string, amount: string | null, category: string) => Promise<void>;
-  editingItem?: GroceryItem | null;
-  onUpdate?: (id: string, name: string, amount: string | null, category: string) => Promise<void>;
-  onCancelEdit?: () => void;
+  buyers: Buyer[];
+  onAddToBuy: (name: string, amount: string | null) => Promise<void>;
+  onAddBought: (
+    name: string,
+    amount: string | null,
+    price: number,
+    buyer: string,
+  ) => Promise<void>;
 }
 
-export default function AddItemForm({ t, lang, customCategories, onAdd, editingItem, onUpdate, onCancelEdit }: Props) {
+type Mode = "toBuy" | "bought";
+
+export default function AddItemForm({
+  t,
+  lang,
+  buyers,
+  onAddToBuy,
+  onAddBought,
+}: Props) {
+  const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState<Mode>("toBuy");
   const [name, setName] = useState("");
   const [amount, setAmount] = useState("");
-  const [category, setCategory] = useState("other");
-  const [customCategoryName, setCustomCategoryName] = useState("");
-  const [open, setOpen] = useState(false);
+  const [price, setPrice] = useState("");
+  const [buyer, setBuyer] = useState("");
 
-  const isEditing = !!editingItem;
-
-  useEffect(() => {
-    if (editingItem) {
-      setName(editingItem.name);
-      setAmount(editingItem.amount ?? "");
-      const isBuiltIn = (CATEGORIES as readonly string[]).includes(editingItem.category);
-      if (isBuiltIn) {
-        setCategory(editingItem.category);
-        setCustomCategoryName("");
-      } else {
-        setCategory("__custom");
-        setCustomCategoryName(editingItem.category);
-      }
-      setOpen(true);
-    }
-  }, [editingItem]);
-
-  function resetForm() {
+  function reset() {
     setName("");
     setAmount("");
-    setCategory("other");
-    setCustomCategoryName("");
+    setPrice("");
+    setBuyer("");
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim()) return;
-
-    const finalCategory = category === "__custom" ? customCategoryName.trim() : category;
-    if (category === "__custom" && !finalCategory) return;
-
-    if (isEditing && onUpdate) {
-      await onUpdate(editingItem!.id, name.trim(), amount.trim() || null, finalCategory);
-      onCancelEdit?.();
+    if (mode === "toBuy") {
+      await onAddToBuy(name.trim(), amount.trim() || null);
     } else {
-      await onAdd(name.trim(), amount.trim() || null, finalCategory);
+      const p = Number(price);
+      if (!Number.isFinite(p) || p < 0) return;
+      if (!buyer.trim()) return;
+      await onAddBought(name.trim(), amount.trim() || null, p, buyer.trim());
     }
-    resetForm();
+    reset();
     setOpen(false);
   }
 
-  function handleCancel() {
-    if (isEditing) {
-      onCancelEdit?.();
-    }
-    resetForm();
-    setOpen(false);
-  }
-
-  if (!open && !isEditing) {
+  if (!open) {
     return (
-      <button
-        onClick={() => setOpen(true)}
-        className="w-full py-3 rounded-2xl bg-emerald-500 text-white font-semibold text-lg
-                   active:scale-95 transition-transform shadow-lg"
-      >
-        + {t.addItem}
-      </button>
+      <div className="flex gap-2">
+        <button
+          onClick={() => {
+            setMode("toBuy");
+            setOpen(true);
+          }}
+          className="flex-1 py-3 rounded-2xl bg-emerald-500 text-white font-semibold text-base
+                     active:scale-95 transition-transform shadow-lg"
+        >
+          + {t.addToBuy}
+        </button>
+        <button
+          onClick={() => {
+            setMode("bought");
+            setOpen(true);
+          }}
+          className="flex-1 py-3 rounded-2xl bg-indigo-500 text-white font-semibold text-base
+                     active:scale-95 transition-transform shadow-lg"
+        >
+          + {t.addBought}
+        </button>
+      </div>
     );
   }
-
-  const allCategories = [...CATEGORIES, ...customCategories];
 
   return (
     <form
@@ -92,6 +89,31 @@ export default function AddItemForm({ t, lang, customCategories, onAdd, editingI
       dir={lang === "he" ? "rtl" : "ltr"}
       className="flex flex-col gap-3 bg-white rounded-2xl p-4 shadow-lg border border-gray-100"
     >
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => setMode("toBuy")}
+          className={`flex-1 py-2 rounded-xl text-sm font-semibold transition-colors ${
+            mode === "toBuy"
+              ? "bg-emerald-500 text-white"
+              : "bg-gray-100 text-gray-600"
+          }`}
+        >
+          {t.addToBuy}
+        </button>
+        <button
+          type="button"
+          onClick={() => setMode("bought")}
+          className={`flex-1 py-2 rounded-xl text-sm font-semibold transition-colors ${
+            mode === "bought"
+              ? "bg-indigo-500 text-white"
+              : "bg-gray-100 text-gray-600"
+          }`}
+        >
+          {t.addBought}
+        </button>
+      </div>
+
       <input
         autoFocus
         type="text"
@@ -109,48 +131,42 @@ export default function AddItemForm({ t, lang, customCategories, onAdd, editingI
         className="w-full px-4 py-3 rounded-xl border border-gray-200 text-base
                    focus:outline-none focus:ring-2 focus:ring-emerald-400 bg-gray-50"
       />
-      <select
-        value={category}
-        onChange={(e) => {
-          setCategory(e.target.value);
-          if (e.target.value !== "__custom") setCustomCategoryName("");
-        }}
-        className="w-full px-4 py-3 rounded-xl border border-gray-200 text-base
-                   focus:outline-none focus:ring-2 focus:ring-emerald-400 bg-gray-50 appearance-none"
-      >
-        {allCategories.map((cat) => (
-          <option key={cat} value={cat}>
-            {t.categories[cat] ?? cat}
-          </option>
-        ))}
-        <option value="__custom">+ {t.categories.other}...</option>
-      </select>
-      {category === "__custom" && (
-        <input
-          autoFocus
-          type="text"
-          placeholder={t.customCategory}
-          value={customCategoryName}
-          onChange={(e) => setCustomCategoryName(e.target.value)}
-          className="w-full px-4 py-3 rounded-xl border border-gray-200 text-base
-                     focus:outline-none focus:ring-2 focus:ring-emerald-400 bg-gray-50"
-        />
+
+      {mode === "bought" && (
+        <>
+          <input
+            type="number"
+            inputMode="decimal"
+            step="0.01"
+            min="0"
+            placeholder={t.price}
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 text-base
+                       focus:outline-none focus:ring-2 focus:ring-emerald-400 bg-gray-50"
+          />
+          <BuyerSelect t={t} buyers={buyers} value={buyer} onChange={setBuyer} />
+        </>
       )}
+
       <div className="flex gap-2">
         <button
           type="submit"
           className="flex-1 py-3 rounded-xl bg-emerald-500 text-white font-semibold
                      active:scale-95 transition-transform"
         >
-          {isEditing ? t.save : t.addItem}
+          {t.save}
         </button>
         <button
           type="button"
-          onClick={handleCancel}
+          onClick={() => {
+            reset();
+            setOpen(false);
+          }}
           className="px-5 py-3 rounded-xl bg-gray-100 text-gray-600 font-medium
                      active:scale-95 transition-transform"
         >
-          {isEditing ? t.cancel : "✕"}
+          {t.cancel}
         </button>
       </div>
     </form>

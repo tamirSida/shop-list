@@ -1,11 +1,16 @@
-export interface GroceryItem {
+export interface PartyItem {
   id: string;
   name: string;
   amount: string | null;
-  category: string;
   bought: boolean;
+  price: number | null;
+  buyer: string | null;
+  boughtAt: number | null;
   createdAt: number;
 }
 
-export const CATEGORIES = ["super", "pharm", "food", "snacks", "other"] as const;
-export type Category = (typeof CATEGORIES)[number];
+export interface Buyer {
+  id: string;
+  name: string;
+  createdAt: number;
+}

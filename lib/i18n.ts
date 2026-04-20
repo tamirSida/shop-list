@@ -2,79 +2,76 @@ export type Lang = "he" | "en";
 
 const translations = {
   he: {
-    title: "רשימת קניות",
-    addItem: "הוסף פריט",
+    title: "הוצאות מסיבה",
+    tabToBuy: "לקנות",
+    tabBought: "נקנה",
+    tabDashboard: "סיכום",
+    addToBuy: "הוסף פריט",
+    addBought: "הוסף קנייה",
     itemName: "שם הפריט",
     amount: "כמות",
-    category: "קטגוריה",
-    categories: {
-      super: "סופר",
-      pharm: "פארם",
-      food: "אוכל",
-      snacks: "שטויות",
-      other: "אחר",
-    } as Record<string, string>,
+    price: "מחיר",
+    buyer: "קונה",
+    buyerPlaceholder: "בחר קונה",
+    otherBuyer: "אחר...",
+    newBuyerName: "שם הקונה",
+    markBought: "סמן כנקנה",
+    markSelected: "סמן נבחרים",
+    selectAll: "בחר הכל",
+    clearSelection: "נקה",
     delete: "מחק",
-    empty: "הרשימה ריקה",
-    loading: "טוען...",
-    langSwitch: "EN",
-    bought: "נקנה",
-    uncategorized: "אחר",
     edit: "ערוך",
     save: "שמור",
     cancel: "ביטול",
+    confirm: "אישור",
     search: "חיפוש...",
-    allCategories: "הכל",
-    customCategory: "שם קטגוריה...",
+    empty: "אין פריטים",
+    emptyBought: "עדיין לא נקנה כלום",
+    loading: "טוען...",
+    langSwitch: "EN",
+    totalSpent: "סה״כ הוצאה",
+    byBuyer: "לפי קונה",
+    items: "פריטים",
+    pricePlaceholder: "סכום כולל",
+    selectedCount: (n: number) => `נבחרו ${n}`,
   },
   en: {
-    title: "Grocery List",
-    addItem: "Add Item",
+    title: "Party Expenses",
+    tabToBuy: "To Buy",
+    tabBought: "Bought",
+    tabDashboard: "Dashboard",
+    addToBuy: "Add Item",
+    addBought: "Add Purchase",
     itemName: "Item name",
-    amount: "Amount",
-    category: "Category",
-    categories: {
-      super: "Supermarket",
-      pharm: "Pharmacy",
-      food: "Food",
-      snacks: "Snacks",
-      other: "Other",
-    } as Record<string, string>,
+    amount: "Quantity",
+    price: "Price",
+    buyer: "Buyer",
+    buyerPlaceholder: "Select buyer",
+    otherBuyer: "Other...",
+    newBuyerName: "Buyer name",
+    markBought: "Mark as bought",
+    markSelected: "Mark selected",
+    selectAll: "Select all",
+    clearSelection: "Clear",
     delete: "Delete",
-    empty: "List is empty",
-    loading: "Loading...",
-    langSwitch: "עב",
-    bought: "Bought",
-    uncategorized: "Other",
     edit: "Edit",
     save: "Save",
     cancel: "Cancel",
+    confirm: "Confirm",
     search: "Search...",
-    allCategories: "All",
-    customCategory: "Category name...",
+    empty: "No items",
+    emptyBought: "Nothing bought yet",
+    loading: "Loading...",
+    langSwitch: "עב",
+    totalSpent: "Total spent",
+    byBuyer: "By buyer",
+    items: "items",
+    pricePlaceholder: "Total price",
+    selectedCount: (n: number) => `${n} selected`,
   },
 } as const;
 
-export type Translations = {
-  title: string;
-  addItem: string;
-  itemName: string;
-  amount: string;
-  category: string;
-  categories: Record<string, string>;
-  delete: string;
-  empty: string;
-  loading: string;
-  langSwitch: string;
-  bought: string;
-  uncategorized: string;
-  edit: string;
-  save: string;
-  cancel: string;
-  search: string;
-  allCategories: string;
-  customCategory: string;
-};
+export type Translations = (typeof translations)[Lang];
 
 export function t(lang: Lang): Translations {
   return translations[lang];
